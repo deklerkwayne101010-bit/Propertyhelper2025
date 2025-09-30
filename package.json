@@ -50,10 +50,21 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/property-helper-2025.git"
+    "url": "https://github.com/deklerkwayne101010-bit/Propertyhelper2025.git"
   },
   "bugs": {
-    "url": "https://github.com/your-org/property-helper-2025/issues"
+    "url": "https://github.com/deklerkwayne101010-bit/Propertyhelper2025/issues"
   },
-  "homepage": "https://property-helper-2025.com"
+  "homepage": "https://property-helper-2025.com",
+  "overrides": {
+    "rimraf": "^4.4.1",
+    "multer": "^1.4.5-lts.1",
+    "inflight": "^1.0.6",
+    "glob": "^9.3.5",
+    "domexception": "^4.0.0",
+    "abab": "^2.0.6",
+    "@humanwhocodes/object-schema": "^2.0.3",
+    "@humanwhocodes/config-array": "^0.13.0",
+    "eslint": "^8.57.1"
+  }
 }
