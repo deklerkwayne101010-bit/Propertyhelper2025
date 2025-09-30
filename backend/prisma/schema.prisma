@@ -1,0 +1,440 @@
+// Prisma schema for Property Helper 2025
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  password    String
+  firstName   String?
+  lastName    String?
+  phone       String?
+  avatar      String?
+  role        Role     @default(USER)
+  isActive    Boolean  @default(true)
+  isVerified  Boolean  @default(false)
+  lastLogin   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  properties      Property[]
+  templates       Template[]
+  leads           Lead[]
+  campaigns       Campaign[]
+  deals           Deal[]
+  activities      Activity[]
+  notifications   Notification[]
+  credits         Credit[]
+  transactions    Transaction[]
+  auditLogs       AuditLog[]
+
+  @@map("users")
+}
+
+model Property {
+  id              String            @id @default(cuid())
+  title           String
+  description     String?
+  price           Float
+  propertyType    PropertyType
+  status          PropertyStatus    @default(DRAFT)
+  address         String
+  city            String
+  province        String
+  postalCode      String?
+  coordinates     Json?             // { lat: Float, lng: Float }
+  bedrooms        Int?
+  bathrooms       Float?
+  garages         Int?
+  floorSize       Float?
+  landSize        Float?
+  yearBuilt       Int?
+  features        Json?             // Array of feature strings
+  images          PropertyImage[]
+  documents       PropertyDocument[]
+  userId          String
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  leads           Lead[]
+  deals           Deal[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@map("properties")
+}
+
+model PropertyImage {
+  id         String   @id @default(cuid())
+  url        String
+  alt        String?
+  isPrimary  Boolean  @default(false)
+  order      Int      @default(0)
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@map("property_images")
+}
+
+model PropertyDocument {
+  id         String   @id @default(cuid())
+  name       String
+  url        String
+  type       String   // pdf, doc, etc.
+  size       Int      // file size in bytes
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@map("property_documents")
+}
+
+model Template {
+  id          String      @id @default(cuid())
+  name        String
+  description String?
+  category    String
+  thumbnail   String?
+  data        Json        // Template JSON data for Konva.js
+  isPublic    Boolean     @default(false)
+  tags        String[]    // Array of tag strings
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@map("templates")
+}
+
+model Lead {
+  id           String       @id @default(cuid())
+  firstName    String
+  lastName     String?
+  email        String?
+  phone        String?
+  source       LeadSource
+  status       LeadStatus   @default(NEW)
+  score        Int          @default(0)
+  notes        String?
+  propertyId   String?
+  property     Property?    @relation(fields: [propertyId], references: [id])
+  userId       String
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activities   Activity[]
+  campaigns    CampaignLead[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@map("leads")
+}
+
+model Campaign {
+  id           String         @id @default(cuid())
+  name         String
+  description  String?
+  type         CampaignType
+  status       CampaignStatus @default(DRAFT)
+  budget       Float?
+  startDate    DateTime?
+  endDate      DateTime?
+  userId       String
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  leads        CampaignLead[]
+  messages     CampaignMessage[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@map("campaigns")
+}
+
+model CampaignLead {
+  id         String   @id @default(cuid())
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  leadId     String
+  lead       Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  status     String   @default("PENDING")
+  sentAt     DateTime?
+  openedAt   DateTime?
+  clickedAt  DateTime?
+  createdAt  DateTime @default(now())
+
+  @@unique([campaignId, leadId])
+  @@map("campaign_leads")
+}
+
+model CampaignMessage {
+  id         String   @id @default(cuid())
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  type       String   // whatsapp, email, sms
+  content    String
+  sentAt     DateTime?
+  createdAt  DateTime @default(now())
+
+  @@map("campaign_messages")
+}
+
+model Deal {
+  id           String     @id @default(cuid())
+  title        String
+  value        Float
+  status       DealStatus @default(OPEN)
+  stage        String?
+  closeDate    DateTime?
+  propertyId   String?
+  property     Property?  @relation(fields: [propertyId], references: [id])
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activities   Activity[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@map("deals")
+}
+
+model Activity {
+  id          String      @id @default(cuid())
+  type        ActivityType
+  title       String
+  description String?
+  metadata    Json?       // Additional data specific to activity type
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  leadId      String?
+  lead        Lead?       @relation(fields: [leadId], references: [id])
+  dealId      String?
+  deal        Deal?       @relation(fields: [dealId], references: [id])
+  createdAt   DateTime    @default(now())
+
+  @@map("activities")
+}
+
+model Notification {
+  id        String            @id @default(cuid())
+  type      NotificationType
+  title     String
+  message   String
+  isRead    Boolean           @default(false)
+  userId    String
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime          @default(now())
+
+  @@map("notifications")
+}
+
+model Credit {
+  id          String   @id @default(cuid())
+  amount      Int
+  balance     Int
+  type        CreditType
+  description String?
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactionId String?
+  transaction Transaction? @relation(fields: [transactionId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@map("credits")
+}
+
+model CreditPackage {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  credits     Int
+  price       Float
+  currency    String   @default("ZAR")
+  isActive    Boolean  @default(true)
+  isPopular   Boolean  @default(false)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  transactions Transaction[]
+
+  @@map("credit_packages")
+}
+
+model Transaction {
+  id            String   @id @default(cuid())
+  amount        Float
+  currency      String   @default("ZAR")
+  status        TransactionStatus @default(PENDING)
+  paymentMethod PaymentMethod
+  gatewayId     String?  // Stripe/PayFast transaction ID
+  gatewayData   Json?    // Additional gateway-specific data
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  packageId     String?
+  package       CreditPackage? @relation(fields: [packageId], references: [id])
+  promoCodeId   String?
+  promoCode     PromoCode? @relation(fields: [promoCodeId], references: [id])
+  credits       Credit[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("transactions")
+}
+
+model PromoCode {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  description String?
+  discountType DiscountType
+  discountValue Float  // Percentage (0-100) or fixed amount
+  maxUses     Int?
+  usedCount   Int      @default(0)
+  isActive    Boolean  @default(true)
+  expiresAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  transactions Transaction[]
+
+  @@map("promo_codes")
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  action      String
+  entityType  String
+  entityId    String
+  oldValues   Json?
+  newValues   Json?
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  @@map("audit_logs")
+}
+
+// Enums
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  AGENT
+  USER
+}
+
+enum PropertyType {
+  HOUSE
+  APARTMENT
+  TOWNHOUSE
+  LAND
+  COMMERCIAL
+  INDUSTRIAL
+  OTHER
+}
+
+enum PropertyStatus {
+  DRAFT
+  ACTIVE
+  PENDING
+  SOLD
+  RENTED
+  INACTIVE
+}
+
+enum LeadSource {
+  WEBSITE
+  WHATSAPP
+  PROPERTY24
+  REFERRAL
+  SOCIAL_MEDIA
+  DIRECT
+  OTHER
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  PROPOSAL
+  NEGOTIATION
+  CLOSED_WON
+  CLOSED_LOST
+}
+
+enum CampaignType {
+  EMAIL
+  WHATSAPP
+  SMS
+  SOCIAL_MEDIA
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum DealStatus {
+  OPEN
+  WON
+  LOST
+  CANCELLED
+}
+
+enum ActivityType {
+  CALL
+  EMAIL
+  MEETING
+  NOTE
+  TASK
+  VIEWING
+  OFFER
+  CONTRACT
+  OTHER
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  LEAD
+  DEAL
+  CAMPAIGN
+  SYSTEM
+}
+
+enum CreditType {
+  PURCHASE
+  REFUND
+  BONUS
+  USAGE
+}
+
+enum TransactionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  STRIPE
+  PAYFAST
+  BANK_TRANSFER
+  MANUAL
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}

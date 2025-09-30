@@ -1,0 +1,158 @@
+groups:
+  - name: property-helper-alerts
+    rules:
+      # Application Health Alerts
+      - alert: BackendDown
+        expr: up{job="property-helper-backend"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          service: backend
+        annotations:
+          summary: "Backend service is down"
+          description: "Property Helper backend has been down for more than 5 minutes."
+
+      - alert: FrontendDown
+        expr: up{job="property-helper-frontend"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          service: frontend
+        annotations:
+          summary: "Frontend service is down"
+          description: "Property Helper frontend has been down for more than 5 minutes."
+
+      - alert: DatabaseDown
+        expr: up{job="postgres"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: database
+        annotations:
+          summary: "Database is down"
+          description: "PostgreSQL database has been down for more than 2 minutes."
+
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 2m
+        labels:
+          severity: warning
+          service: cache
+        annotations:
+          summary: "Redis cache is down"
+          description: "Redis cache has been down for more than 2 minutes."
+
+      # Performance Alerts
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="property-helper-backend"}[5m])) > 2
+        for: 10m
+        labels:
+          severity: warning
+          service: backend
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is above 2 seconds for 10 minutes."
+
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5..", job="property-helper-backend"}[5m]) / rate(http_requests_total{job="property-helper-backend"}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          service: backend
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is above 5% for 5 minutes."
+
+      - alert: HighMemoryUsage
+        expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is above 90% for 5 minutes."
+
+      - alert: HighCPUUsage
+        expr: (1 - avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m]))) * 100 > 85
+        for: 10m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is above 85% for 10 minutes."
+
+      # Database Alerts
+      - alert: DatabaseHighConnections
+        expr: pg_stat_activity_count > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: database
+        annotations:
+          summary: "High database connections"
+          description: "Database has more than 80 active connections."
+
+      - alert: DatabaseSlowQueries
+        expr: increase(pg_stat_activity_max_tx_duration{datname="property_helper_prod"}[5m]) > 300
+        for: 5m
+        labels:
+          severity: warning
+          service: database
+        annotations:
+          summary: "Slow database queries detected"
+          description: "Database has queries running longer than 5 minutes."
+
+      # Disk Space Alerts
+      - alert: LowDiskSpace
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 10
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "Low disk space"
+          description: "Disk space is below 10% available."
+
+      # Application Specific Alerts
+      - alert: PaymentServiceDown
+        expr: up{job="stripe-webhook"} == 0
+        for: 10m
+        labels:
+          severity: critical
+          service: payments
+        annotations:
+          summary: "Payment service unavailable"
+          description: "Stripe webhook service has been down for 10 minutes."
+
+      - alert: HighQueueBacklog
+        expr: redis_queue_length > 1000
+        for: 5m
+        labels:
+          severity: warning
+          service: queue
+        annotations:
+          summary: "High queue backlog"
+          description: "Redis queue has more than 1000 items pending."
+
+      # Security Alerts
+      - alert: UnusualLoginAttempts
+        expr: increase(login_attempts_total{status="failed"}[10m]) > 50
+        for: 5m
+        labels:
+          severity: warning
+          service: security
+        annotations:
+          summary: "Unusual number of failed login attempts"
+          description: "More than 50 failed login attempts in 10 minutes."
+
+      - alert: SuspiciousAPIUsage
+        expr: rate(api_requests_total{endpoint=~"/admin/.*"}[5m]) > 100
+        for: 5m
+        labels:
+          severity: warning
+          service: security
+        annotations:
+          summary: "Suspicious admin API usage"
+          description: "High volume of admin API requests detected."

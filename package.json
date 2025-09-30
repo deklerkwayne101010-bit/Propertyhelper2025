@@ -1,0 +1,59 @@
+{
+  "name": "property-helper-2025",
+  "version": "1.0.0",
+  "description": "Property Helper 2025 - Complete Real Estate Platform",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "docker-compose -f infrastructure/docker-compose.yml up --build",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "start": "docker-compose -f infrastructure/docker-compose.yml up --build -d",
+    "stop": "docker-compose -f infrastructure/docker-compose.yml down",
+    "clean": "docker-compose -f infrastructure/docker-compose.yml down -v --remove-orphans",
+    "test": "npm run test:frontend && npm run test:backend",
+    "test:frontend": "cd frontend && npm run test",
+    "test:backend": "cd backend && npm run test",
+    "lint": "npm run lint:frontend && npm run lint:backend",
+    "lint:frontend": "cd frontend && npm run lint",
+    "lint:backend": "cd backend && npm run lint",
+    "db:setup": "cd backend && npm run db:push",
+    "db:migrate": "cd backend && npm run db:migrate",
+    "db:seed": "cd backend && npm run db:seed",
+    "db:studio": "cd backend && npm run db:studio",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "prepare": "npm run install:all"
+  },
+  "keywords": [
+    "real-estate",
+    "property",
+    "platform",
+    "templates",
+    "crm",
+    "2025"
+  ],
+  "author": "Property Helper Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/property-helper-2025.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/property-helper-2025/issues"
+  },
+  "homepage": "https://property-helper-2025.com"
+}
