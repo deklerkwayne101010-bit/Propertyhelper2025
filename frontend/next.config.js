@@ -9,14 +9,15 @@ const nextConfig = {
   webpack: (config, { isServer, webpack }) => {
     // Prevent Konva from loading Node.js canvas in the browser
     if (!isServer) {
-      // Use IgnorePlugin to completely ignore canvas module
+      // Create a mock canvas module for Konva
       config.plugins.push(
-        new webpack.IgnorePlugin({
-          resourceRegExp: /^canvas$/,
-          contextRegExp: /konva/
-        })
+        new webpack.NormalModuleReplacementPlugin(
+          /^canvas$/,
+          'node_modules/konva/lib/Global.js'
+        )
       );
 
+      // Provide a mock for canvas when imported from konva
       config.resolve.fallback = {
         ...config.resolve.fallback,
         canvas: false,
@@ -35,20 +36,13 @@ const nextConfig = {
         zlib: false,
       };
 
-      // Alias canvas to prevent Konva from trying to load it
+      // Alias canvas to a mock implementation
       config.resolve.alias = {
         ...config.resolve.alias,
-        canvas: false,
+        canvas: 'konva/lib/Global.js',
         'canvas-prebuilt': false,
         'canvas-prebuilt/canvas': false,
       };
-
-      // Add externals for canvas-related modules
-      config.externals = config.externals || [];
-      config.externals.push({
-        canvas: 'canvas',
-        'canvas-prebuilt': 'canvas-prebuilt',
-      });
     }
 
     return config;
