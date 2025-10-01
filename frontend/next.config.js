@@ -6,9 +6,17 @@ const nextConfig = {
   images: {
     domains: ['localhost', 'res.cloudinary.com', 'images.unsplash.com'],
   },
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, webpack }) => {
     // Prevent Konva from loading Node.js canvas in the browser
     if (!isServer) {
+      // Use IgnorePlugin to completely ignore canvas module
+      config.plugins.push(
+        new webpack.IgnorePlugin({
+          resourceRegExp: /^canvas$/,
+          contextRegExp: /konva/
+        })
+      );
+
       config.resolve.fallback = {
         ...config.resolve.fallback,
         canvas: false,
