@@ -4,25 +4,60 @@ import * as React from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { supabase } from "@/lib/supabase"
+import { useRouter } from "next/navigation"
 
 interface SignupFormProps {
-  onSubmit?: (data: { name: string; email: string; password: string; confirmPassword: string }) => void
-  isLoading?: boolean
-  error?: string
+  onSuccess?: () => void
 }
 
-export function SignupForm({ onSubmit, isLoading = false, error }: SignupFormProps) {
-  const [name, setName] = React.useState("")
+export function SignupForm({ onSuccess }: SignupFormProps) {
+  const [firstName, setFirstName] = React.useState("")
+  const [lastName, setLastName] = React.useState("")
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
   const [confirmPassword, setConfirmPassword] = React.useState("")
+  const [isLoading, setIsLoading] = React.useState(false)
+  const [error, setError] = React.useState("")
+  const router = useRouter()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (password !== confirmPassword) {
+      setError("Passwords do not match")
       return
     }
-    onSubmit?.({ name, email, password, confirmPassword })
+
+    setIsLoading(true)
+    setError("")
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            first_name: firstName,
+            last_name: lastName,
+          }
+        }
+      })
+
+      if (error) {
+        setError(error.message)
+        return
+      }
+
+      if (data.user) {
+        onSuccess?.()
+        // Redirect to check email page or dashboard
+        router.push('/auth/check-email')
+      }
+    } catch (err) {
+      setError('An unexpected error occurred')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const passwordsMatch = password === confirmPassword || confirmPassword === ""
@@ -43,19 +78,36 @@ export function SignupForm({ onSubmit, isLoading = false, error }: SignupFormPro
             </Alert>
           )}
 
-          <div className="space-y-2">
-            <label htmlFor="name" className="text-sm font-medium text-foreground">
-              Full Name
-            </label>
-            <input
-              id="name"
-              type="text"
-              placeholder="Enter your full name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              required
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label htmlFor="firstName" className="text-sm font-medium text-foreground">
+                First Name
+              </label>
+              <input
+                id="firstName"
+                type="text"
+                placeholder="First name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="lastName" className="text-sm font-medium text-foreground">
+                Last Name
+              </label>
+              <input
+                id="lastName"
+                type="text"
+                placeholder="Last name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                required
+              />
+            </div>
           </div>
 
           <div className="space-y-2">

@@ -4,20 +4,45 @@ import * as React from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { supabase } from "@/lib/supabase"
+import { useRouter } from "next/navigation"
 
 interface SigninFormProps {
-  onSubmit?: (data: { email: string; password: string }) => void
-  isLoading?: boolean
-  error?: string
+  onSuccess?: () => void
 }
 
-export function SigninForm({ onSubmit, isLoading = false, error }: SigninFormProps) {
+export function SigninForm({ onSuccess }: SigninFormProps) {
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
+  const [isLoading, setIsLoading] = React.useState(false)
+  const [error, setError] = React.useState("")
+  const router = useRouter()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    onSubmit?.({ email, password })
+    setIsLoading(true)
+    setError("")
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (error) {
+        setError(error.message)
+        return
+      }
+
+      if (data.user) {
+        onSuccess?.()
+        router.push('/dashboard')
+      }
+    } catch (err) {
+      setError('An unexpected error occurred')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
