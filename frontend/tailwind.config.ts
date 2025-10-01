@@ -159,7 +159,130 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    function({ addUtilities, addComponents, theme, addBase }) {
+      // Custom utilities
+      addUtilities({
+        '.backdrop-blur-glass': {
+          'backdrop-filter': 'blur(16px) saturate(180%)',
+          '-webkit-backdrop-filter': 'blur(16px) saturate(180%)',
+          'background-color': 'rgba(255, 255, 255, 0.75)',
+          'border': '1px solid rgba(209, 213, 219, 0.3)',
+        },
+        '.backdrop-blur-glass-dark': {
+          'backdrop-filter': 'blur(16px) saturate(180%)',
+          '-webkit-backdrop-filter': 'blur(16px) saturate(180%)',
+          'background-color': 'rgba(17, 25, 40, 0.75)',
+          'border': '1px solid rgba(255, 255, 255, 0.125)',
+        },
+        '.animate-fade-in': {
+          animation: 'fadeIn 0.6s ease-out',
+        },
+        '.animate-slide-up': {
+          animation: 'slideUp 0.6s ease-out',
+        },
+        '.animate-bounce-in': {
+          animation: 'bounceIn 0.8s ease-out',
+        },
+      })
+
+      // Custom components
+      addComponents({
+        '.glass': {
+          'background': 'rgba(255, 255, 255, 0.1)',
+          'backdrop-filter': 'blur(10px)',
+          'border': '1px solid rgba(255, 255, 255, 0.2)',
+        },
+        '.glass-dark': {
+          'background': 'rgba(0, 0, 0, 0.1)',
+          'backdrop-filter': 'blur(10px)',
+          'border': '1px solid rgba(255, 255, 255, 0.1)',
+        },
+        '.gradient-text': {
+          'background': `linear-gradient(135deg, ${theme('colors.primary.600')}, ${theme('colors.secondary.600')})`,
+          '-webkit-background-clip': 'text',
+          '-webkit-text-fill-color': 'transparent',
+          'background-clip': 'text',
+        },
+        '.animated-gradient': {
+          'background': 'linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)',
+          'background-size': '400% 400%',
+          'animation': 'gradientShift 15s ease infinite',
+        },
+        '.hover-lift': {
+          'transition': 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        },
+        '.hover-lift:hover': {
+          'transform': 'translateY(-4px)',
+          'box-shadow': '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+        },
+        '.btn-primary': {
+          '@apply bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200': {},
+        },
+        '.btn-secondary': {
+          '@apply bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200': {},
+        },
+        '.card-beautiful': {
+          '@apply bg-white/80 backdrop-blur-sm border border-white/20 shadow-xl rounded-2xl hover:shadow-2xl transition-all duration-300': {},
+        },
+        '.card-beautiful-dark': {
+          '@apply bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 shadow-xl rounded-2xl hover:shadow-2xl transition-all duration-300': {},
+        },
+        '.input-beautiful': {
+          '@apply bg-white/50 backdrop-blur-sm border border-gray-200/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-200 placeholder-gray-400': {},
+        },
+        '.heading-hero': {
+          '@apply text-5xl md:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent leading-tight': {},
+        },
+        '.heading-section': {
+          '@apply text-3xl md:text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent': {},
+        },
+        '.text-gradient': {
+          '@apply bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent': {},
+        },
+      })
+
+      // Custom keyframes
+      addBase({
+        '@keyframes fadeIn': {
+          'from': { opacity: '0' },
+          'to': { opacity: '1' },
+        },
+        '@keyframes slideUp': {
+          'from': {
+            opacity: '0',
+            transform: 'translateY(30px)',
+          },
+          'to': {
+            opacity: '1',
+            transform: 'translateY(0)',
+          },
+        },
+        '@keyframes bounceIn': {
+          '0%': {
+            opacity: '0',
+            transform: 'scale(0.3)',
+          },
+          '50%': {
+            opacity: '1',
+            transform: 'scale(1.05)',
+          },
+          '70%': {
+            transform: 'scale(0.9)',
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'scale(1)',
+          },
+        },
+        '@keyframes gradientShift': {
+          '0%': { 'background-position': '0% 50%' },
+          '50%': { 'background-position': '100% 50%' },
+          '100%': { 'background-position': '0% 50%' },
+        },
+      })
+    },
+  ],
 }
 
 export default config
