@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss'
+import type { PluginAPI } from 'tailwindcss/types/config'
 
 const config: Config = {
   content: [
@@ -160,7 +161,7 @@ const config: Config = {
     },
   },
   plugins: [
-    function({ addUtilities, addComponents, theme, addBase }) {
+    function({ addUtilities, addComponents, addBase }: any) {
       // Custom utilities
       addUtilities({
         '.backdrop-blur-glass': {
@@ -199,7 +200,7 @@ const config: Config = {
           'border': '1px solid rgba(255, 255, 255, 0.1)',
         },
         '.gradient-text': {
-          'background': `linear-gradient(135deg, ${theme('colors.primary.600')}, ${theme('colors.secondary.600')})`,
+          'background': 'linear-gradient(135deg, #0ea5e9, #9333ea)',
           '-webkit-background-clip': 'text',
           '-webkit-text-fill-color': 'transparent',
           'background-clip': 'text',
@@ -217,28 +218,90 @@ const config: Config = {
           'box-shadow': '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
         },
         '.btn-primary': {
-          '@apply bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200': {},
+          'background': 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+          'color': 'white',
+          'font-weight': '600',
+          'padding': '0.75rem 1.5rem',
+          'border-radius': '0.75rem',
+          'box-shadow': '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+          'transition': 'all 0.2s',
+        },
+        '.btn-primary:hover': {
+          'background': 'linear-gradient(135deg, #1d4ed8, #1e40af)',
+          'box-shadow': '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+          'transform': 'translateY(-2px)',
         },
         '.btn-secondary': {
-          '@apply bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200': {},
+          'background': 'linear-gradient(135deg, #9333ea, #7c3aed)',
+          'color': 'white',
+          'font-weight': '600',
+          'padding': '0.75rem 1.5rem',
+          'border-radius': '0.75rem',
+          'box-shadow': '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+          'transition': 'all 0.2s',
+        },
+        '.btn-secondary:hover': {
+          'background': 'linear-gradient(135deg, #7c3aed, #6b21a8)',
+          'box-shadow': '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+          'transform': 'translateY(-2px)',
         },
         '.card-beautiful': {
-          '@apply bg-white/80 backdrop-blur-sm border border-white/20 shadow-xl rounded-2xl hover:shadow-2xl transition-all duration-300': {},
+          'background': 'rgba(255, 255, 255, 0.8)',
+          'backdrop-filter': 'blur(8px)',
+          'border': '1px solid rgba(255, 255, 255, 0.2)',
+          'box-shadow': '0 25px 50px -12px rgb(0 0 0 / 0.25)',
+          'border-radius': '1rem',
+          'transition': 'all 0.3s',
+        },
+        '.card-beautiful:hover': {
+          'box-shadow': '0 35px 60px -12px rgb(0 0 0 / 0.3)',
         },
         '.card-beautiful-dark': {
-          '@apply bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 shadow-xl rounded-2xl hover:shadow-2xl transition-all duration-300': {},
+          'background': 'rgba(17, 24, 39, 0.8)',
+          'backdrop-filter': 'blur(8px)',
+          'border': '1px solid rgba(55, 65, 81, 0.5)',
+          'box-shadow': '0 25px 50px -12px rgb(0 0 0 / 0.25)',
+          'border-radius': '1rem',
+          'transition': 'all 0.3s',
+        },
+        '.card-beautiful-dark:hover': {
+          'box-shadow': '0 35px 60px -12px rgb(0 0 0 / 0.3)',
         },
         '.input-beautiful': {
-          '@apply bg-white/50 backdrop-blur-sm border border-gray-200/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-200 placeholder-gray-400': {},
+          'background': 'rgba(255, 255, 255, 0.5)',
+          'backdrop-filter': 'blur(8px)',
+          'border': '1px solid rgba(156, 163, 175, 0.5)',
+          'border-radius': '0.75rem',
+          'padding': '0.75rem 1rem',
+          'transition': 'all 0.2s',
+        },
+        '.input-beautiful:focus': {
+          'outline': 'none',
+          'ring': '2px solid rgba(59, 130, 246, 0.5)',
+          'border-color': 'transparent',
         },
         '.heading-hero': {
-          '@apply text-5xl md:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent leading-tight': {},
+          'font-size': '3rem',
+          'font-weight': 'bold',
+          'background': 'linear-gradient(135deg, #111827, #1e40af, #7c3aed)',
+          '-webkit-background-clip': 'text',
+          '-webkit-text-fill-color': 'transparent',
+          'background-clip': 'text',
+          'line-height': '1.1',
         },
         '.heading-section': {
-          '@apply text-3xl md:text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent': {},
+          'font-size': '2.25rem',
+          'font-weight': 'bold',
+          'background': 'linear-gradient(135deg, #1f2937, #374151)',
+          '-webkit-background-clip': 'text',
+          '-webkit-text-fill-color': 'transparent',
+          'background-clip': 'text',
         },
         '.text-gradient': {
-          '@apply bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent': {},
+          'background': 'linear-gradient(135deg, #2563eb, #9333ea)',
+          '-webkit-background-clip': 'text',
+          '-webkit-text-fill-color': 'transparent',
+          'background-clip': 'text',
         },
       })
 
