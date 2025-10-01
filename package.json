@@ -26,9 +26,7 @@
     "db:setup": "cd backend && npm run db:push",
     "db:migrate": "cd backend && npm run db:migrate",
     "db:seed": "cd backend && npm run db:seed",
-    "db:studio": "cd backend && npm run db:studio",
-    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
-    "prepare": "npm run install:all"
+    "db:studio": "cd backend && npm run db:studio"
   },
   "keywords": [
     "real-estate",
