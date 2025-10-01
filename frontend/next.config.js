@@ -9,18 +9,16 @@ const nextConfig = {
   webpack: (config, { isServer, webpack }) => {
     // Prevent Konva from loading Node.js canvas in the browser
     if (!isServer) {
-      // Create a mock canvas module for Konva
+      // Replace canvas imports with our mock
       config.plugins.push(
         new webpack.NormalModuleReplacementPlugin(
           /^canvas$/,
-          'node_modules/konva/lib/Global.js'
+          './canvas-mock.js'
         )
       );
 
-      // Provide a mock for canvas when imported from konva
       config.resolve.fallback = {
         ...config.resolve.fallback,
-        canvas: false,
         fs: false,
         path: false,
         util: false,
@@ -36,10 +34,9 @@ const nextConfig = {
         zlib: false,
       };
 
-      // Alias canvas to a mock implementation
+      // Alias other problematic modules
       config.resolve.alias = {
         ...config.resolve.alias,
-        canvas: 'konva/lib/Global.js',
         'canvas-prebuilt': false,
         'canvas-prebuilt/canvas': false,
       };
